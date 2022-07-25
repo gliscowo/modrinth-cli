@@ -52,7 +52,7 @@ class UpgradeAllCommand extends ModrinthCommand {
 
     if (!(Prompter("\n${Color.BLUE}Proceed? [y/n] ").askSync() ?? false)) return;
 
-    await Future.wait(upgrades.map((e) => downloadFile(e.newFile)));
+    await Future.wait(upgrades.map((e) => downloadFile(e.newFile).then((value) => e.oldFile.delete())));
   }
 }
 
