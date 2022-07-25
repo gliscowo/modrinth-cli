@@ -17,11 +17,13 @@ void printFormatted(Object data, {bool prependNewline = true}) {
   }
 }
 
-ModrinthFile primaryFileOf(ModrinthVersion version) {
+ModrinthFile primaryFileOf(ModrinthVersion version, {bool chooseFirstAsDefault = false}) {
   final files = version.files;
   logger.fine("Files: $files");
 
   final latestFile = files.firstWhere((v) => v.primary, orElse: () {
+    if (chooseFirstAsDefault) return files[0];
+
     logger.warning("The specified version has no primary file");
     return Chooser(files,
             message: "Choose file to download: ",
@@ -86,6 +88,7 @@ class _FormattableVersion implements Formattable {
   @override
   Map<String, String> get formatted => {
         "Version Name": _version.name,
+        "Version Number": "${_version.versionNumber} (${_version.id})",
         "Downloads": _version.downloads.toString(),
         "Changelog": _version.changelog!.contains("\n") ? "\n" + _version.changelog! : _version.changelog!
       };

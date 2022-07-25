@@ -11,11 +11,12 @@ import 'commands/inspect_command.dart';
 import 'commands/install_command.dart';
 import 'commands/project_command.dart';
 import 'commands/search_command.dart';
+import 'commands/upgrade_all_command.dart';
 import 'commands/upgrade_command.dart';
 import 'commands/version_command.dart';
 
-const version = "0.0.3";
-final modrinth = ModrinthApi();
+const version = "0.0.4";
+final modrinth = ModrinthApi.createClient("gliscowo/modrinth-cli/$version");
 final logger = Logger("modrinth");
 
 void main(List<String> arguments) async {
@@ -46,6 +47,7 @@ void main(List<String> arguments) async {
   runner.addCommand(ProjectVersionsCommand());
   runner.addCommand(InspectCommand());
   runner.addCommand(UpgradeCommand());
+  runner.addCommand(UpgradeAllCommand());
 
   try {
     final results = runner.parse(arguments);
