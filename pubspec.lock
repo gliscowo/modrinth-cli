@@ -263,9 +263,11 @@ packages:
   modrinth_api:
     dependency: "direct main"
     description:
-      path: "../modrinth_api"
-      relative: true
-    source: path
+      path: "."
+      ref: "8b5807c"
+      resolved-ref: "8b5807c475fe1c38dc020e90eda027a9c31a660a"
+      url: "https://github.com/gliscowo/modrinth_api"
+    source: git
     version: "0.1.0"
   package_config:
     dependency: transitive

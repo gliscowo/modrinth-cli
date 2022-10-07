@@ -23,5 +23,7 @@ dependencies:
   json_serializable: ^6.1.5
   logging: ^1.0.2
   modrinth_api: 
-    path: ../modrinth_api
+    git: 
+      url: https://github.com/gliscowo/modrinth_api
+      ref: 8b5807c
   path: ^1.8.2
