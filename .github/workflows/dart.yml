@@ -21,23 +21,23 @@ jobs:
 
       - name: Compile windows binary
         run: dart compile exe bin/modrinth.dart -o modrinth.exe
-        if: matrix.os == windows-latest
+        if: matrix.os == 'windows-latest'
 
       - name: Compile binary
         run: dart compile exe bin/modrinth.dart -o modrinth
-        if: matrix.os != windows-latest
+        if: matrix.os != 'windows-latest'
 
 
       - name: Upload windows artifact
         uses: actions/upload-artifact@v3.0.0
-        if: matrix.os == windows-latest
+        if: matrix.os == 'windows-latest'
         with:
             name: artifacts-${{ matrix.os }}
             path: modrinth.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3.0.0
-        if: matrix.os != windows-latest
+        if: matrix.os != 'windows-latest'
         with:
             name: artifacts-${{ matrix.os }}
             path: modrinth
