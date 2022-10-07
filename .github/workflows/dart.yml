@@ -10,7 +10,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         sdk: [stable]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: ${{ matrix.sdk }}
@@ -18,12 +18,27 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
-      - name: Compile binaries
-        run: dart compile exe bin/modrinth.dart
-        
-      - name: Upload a Build Artifact
+
+      - name: Compile windows binary
+        run: dart compile exe bin/modrinth.dart -o modrinth.exe
+        if: matrix.os == windows-latest
+
+      - name: Compile binary
+        run: dart compile exe bin/modrinth.dart -o modrinth
+        if: matrix.os != windows-latest
+
+
+      - name: Upload windows artifact
         uses: actions/upload-artifact@v3.0.0
+        if: matrix.os == windows-latest
         with:
             name: artifacts-${{ matrix.os }}
-            path: bin/modrinth.exe
-            
+            path: modrinth.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.0.0
+        if: matrix.os != windows-latest
+        with:
+            name: artifacts-${{ matrix.os }}
+            path: modrinth
+
