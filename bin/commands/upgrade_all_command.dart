@@ -20,26 +20,23 @@ class UpgradeAllCommand extends ModrinthCommand {
     final gameVersion = args.rest[0];
     final loader = args.rest.length < 2 ? "fabric" : args.rest[1];
 
-    final upgrades = <_UpgradeInfo>[];
     final mods = Directory.current.listSync().whereType<File>().where((element) => element.path.endsWith(".jar"));
+    final upgradeFiles = await modrinth.latestFilesWithLoaderAndGameVersion(mods.toList(), loader, gameVersion);
 
-    for (final oldFile in mods) {
-      logger.info("Processing ${basename(oldFile.path)}");
+    if (upgradeFiles == null) {
+      logger.severe("Could not fetch updated versions from modrinth");
+      return;
+    }
 
-      var newVersion = await modrinth.latestWithLoaderAndGameVersion(oldFile, loader, gameVersion);
-      Console.moveCursorUp();
-      Console.eraseLine();
+    final upgrades = upgradeFiles
+        .map((key, value) => MapEntry(key, primaryFileOf(value, chooseFirstAsDefault: true)))
+        .entries
+        .where((element) => basename(element.key.path) != element.value.filename)
+        .map((e) => _UpgradeInfo(e.key, e.value));
 
-      if (newVersion == null) {
-        logger.warning("No modrinth project for file ${basename(oldFile.path)} found, skipping");
-        continue;
-      }
-
-      final primaryFile = primaryFileOf(newVersion, chooseFirstAsDefault: true);
-      if (primaryFile.filename != basename(oldFile.path)) {
-        logger.info("Found new version: ${Color.GREEN}${primaryFile.filename}");
-        upgrades.add(_UpgradeInfo(oldFile, primaryFile));
-      }
+    if (upgrades.isEmpty) {
+      logger.info("${Color.GREEN}Everything up to date!");
+      return;
     }
 
     print("");

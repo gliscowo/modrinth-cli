@@ -20,7 +20,7 @@ class UpgradeCommand extends ModrinthCommand {
 
     var oldFile = File(filePath);
 
-    var newVersion = await modrinth.latestWithLoaderAndGameVersion(oldFile, loader, gameVersion);
+    var newVersion = await modrinth.latestFileWithLoaderAndGameVersion(oldFile, loader, gameVersion);
     if (newVersion == null) {
       logger.warning("No version found");
       return;
