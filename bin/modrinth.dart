@@ -15,7 +15,7 @@ import 'commands/upgrade_all_command.dart';
 import 'commands/upgrade_command.dart';
 import 'commands/version_command.dart';
 
-const version = "0.0.4";
+const version = "0.0.5";
 final modrinth = ModrinthApi.createClient("gliscowo/modrinth-cli/$version");
 final logger = Logger("modrinth");
 

@@ -11,6 +11,7 @@ class InstallCommand extends ModrinthCommand {
       : super("install", "Download the latest or specified version of the given mod to the current folder",
             requiredArgCount: 1, argsDescription: "<project> [version]") {
     argParser.addOption("game-version", help: "The game version for which to filter");
+    argParser.addOption("loader", help: "The mod loader for which to filter");
   }
 
   @override
@@ -37,6 +38,10 @@ class InstallCommand extends ModrinthCommand {
 
     if (args.wasParsed("game-version")) {
       applicableVersions = applicableVersions.where((element) => element.gameVersions.contains(args["game-version"]));
+    }
+
+    if (args.wasParsed("loader")) {
+      applicableVersions = applicableVersions.where((element) => element.loaders.contains(args["loader"]));
     }
 
     if (args.rest.length > 1) {
