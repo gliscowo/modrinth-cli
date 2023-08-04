@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/src/arg_results.dart';
 import 'package:console/console.dart';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:modrinth_api/modrinth_api.dart';
 import 'package:path/path.dart';
 
@@ -11,9 +12,12 @@ import '../util.dart';
 
 class UpgradeAllCommand extends ModrinthCommand {
   UpgradeAllCommand()
-      : super("upgrade-all",
-            "Upgrade all mod files in the current directory to their latest version for the given game version and modloader",
-            requiredArgCount: 1, argsDescription: "<game version> <loader>");
+      : super(
+          "upgrade-all",
+          "Upgrade all mod files in the current directory to their latest version for the given game version and modloader",
+          requiredArgCount: 1,
+          argsDescription: "<game version> <loader>",
+        );
 
   @override
   FutureOr<void> execute(ArgResults args) async {
@@ -21,17 +25,31 @@ class UpgradeAllCommand extends ModrinthCommand {
     final loader = args.rest.length < 2 ? "fabric" : args.rest[1];
 
     final mods = Directory.current.listSync().whereType<File>().where((element) => element.path.endsWith(".jar"));
-    final upgradeFiles = await modrinth.latestFilesWithLoaderAndGameVersion(mods.toList(), loader, gameVersion);
+    final hashes = await Future.wait(mods.map(
+      (e) => e.readAsBytes().then(crypto.sha512.convert).then((digest) => digest.toString()).then(Hash.sha512),
+    ));
 
-    if (upgradeFiles == null) {
-      logger.severe("Could not fetch updated versions from modrinth");
+    final hashToFile = <Hash, File>{};
+    for (var (idx, file) in mods.indexed) {
+      hashToFile[hashes[idx]] = file;
+    }
+
+    final result = await modrinth.versionFiles.getLatestVersionsFromHashes(
+      hashToFile.keys.toList(),
+      loaders: [loader],
+      gameVersions: [gameVersion],
+    ).result;
+
+    if (result case Error(:var error)) {
+      logger.severe("Could not fetch updated versions from modrinth", error);
       return;
     }
 
-    final upgrades = upgradeFiles
-        .map((key, value) => MapEntry(key, primaryFileOf(value, chooseFirstAsDefault: true)))
+    final files = result.unwrap().map((key, value) => MapEntry(hashToFile[key]!, value));
+    final upgrades = files
+        .map((key, value) => MapEntry(key, value.primaryFile(chooseFirstAsDefault: true)))
         .entries
-        .where((element) => basename(element.key.path) != element.value.filename)
+        .where((e) => basename(e.key.path) != e.value.filename)
         .map((e) => _UpgradeInfo(e.key, e.value));
 
     if (upgrades.isEmpty) {

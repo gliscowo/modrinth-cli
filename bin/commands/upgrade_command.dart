@@ -9,8 +9,12 @@ import '../util.dart';
 
 class UpgradeCommand extends ModrinthCommand {
   UpgradeCommand()
-      : super("upgrade", "Upgrade the given mod file to its latest version for the given game version and modloader",
-            requiredArgCount: 2, argsDescription: "<file> <game version> <loader>");
+      : super(
+          "upgrade",
+          "Upgrade the given mod file to its latest version for the given game version and modloader",
+          requiredArgCount: 2,
+          argsDescription: "<file> <game version> <loader>",
+        );
 
   @override
   FutureOr<void> execute(ArgResults args) async {
@@ -20,13 +24,18 @@ class UpgradeCommand extends ModrinthCommand {
 
     var oldFile = File(filePath);
 
-    var newVersion = await modrinth.latestFileWithLoaderAndGameVersion(oldFile, loader, gameVersion);
+    var newVersion = await modrinth.versionFiles.getLatestVersionFromFile(
+      oldFile,
+      loaders: [loader],
+      gameVersions: [gameVersion],
+    );
+
     if (newVersion == null) {
       logger.warning("No version found");
       return;
     }
 
-    final primaryFile = primaryFileOf(newVersion);
+    final primaryFile = newVersion.primaryFile();
     if (primaryFile.filename == basename(oldFile.path)) {
       logger.info("Already on latest version");
     } else {

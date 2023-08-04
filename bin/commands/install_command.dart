@@ -8,8 +8,12 @@ import '../util.dart';
 
 class InstallCommand extends ModrinthCommand {
   InstallCommand()
-      : super("install", "Download the latest or specified version of the given mod to the current folder",
-            requiredArgCount: 1, argsDescription: "<project> [version]") {
+      : super(
+          "install",
+          "Download the latest or specified version of the given mod to the current folder",
+          requiredArgCount: 1,
+          argsDescription: "<project> [version]",
+        ) {
     argParser.addOption("game-version", help: "The game version for which to filter");
     argParser.addOption("loader", help: "The mod loader for which to filter");
   }
@@ -21,14 +25,14 @@ class InstallCommand extends ModrinthCommand {
       return;
     }
 
-    final versions = await modrinth.getProjectVersions(args.rest[0]);
+    final versions = await modrinth.projects.getVersions(args.rest[0]);
     if (versions == null) {
       logger.warning("No project with id ${args.rest[0]} was found");
       return;
     }
 
     if (versions.isEmpty) {
-      logger.warning("This project provided has no versions to download");
+      logger.warning("The provided project has no versions to download");
       return;
     }
 
@@ -53,6 +57,6 @@ class InstallCommand extends ModrinthCommand {
       return;
     }
 
-    await downloadFile(primaryFileOf(applicableVersions.first));
+    await downloadFile(applicableVersions.first.primaryFile());
   }
 }

@@ -16,13 +16,13 @@ class ProjectCommand extends ModrinthCommand {
     var projectId = args.rest[0];
 
     if (args.wasParsed("get-property")) {
-      print((await modrinth.getProject(projectId))!.toJson()[args["get-property"]]);
+      print((await modrinth.projects.get(projectId))!.toJson()[args["get-property"]]);
     } else if (args.wasParsed("latest")) {
-      print((await modrinth.getProjectVersions(projectId))![0]);
+      print((await modrinth.projects.getVersions(projectId))!.first);
     } else if (args.wasParsed("versions")) {
-      print(await modrinth.getProjectVersions(projectId));
+      print(await modrinth.projects.getVersions(projectId));
     } else {
-      print(await modrinth.getProject(projectId));
+      print(await modrinth.projects.get(projectId));
     }
   }
 }

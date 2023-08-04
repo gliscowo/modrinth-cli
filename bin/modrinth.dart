@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:console/console.dart';
+import 'package:http/http.dart';
 import 'package:logging/logging.dart';
-import 'package:modrinth_api/modrinth_api.dart';
+import 'package:modrinth_api/modrinth_api.dart' as mr;
 
 import 'commands/changelog_command.dart';
 import 'commands/inspect_command.dart';
@@ -16,7 +17,8 @@ import 'commands/upgrade_command.dart';
 import 'commands/version_command.dart';
 
 const version = "0.0.5";
-final modrinth = ModrinthApi.createClient("gliscowo/modrinth-cli/$version");
+final modrinth = mr.ModrinthApi.createClient("gliscowo/modrinth-cli/$version");
+final client = Client();
 final logger = Logger("modrinth");
 
 void main(List<String> arguments) async {
@@ -65,6 +67,7 @@ void main(List<String> arguments) async {
   }
 
   modrinth.dispose();
+  client.close();
 }
 
 abstract class ModrinthCommand extends Command<void> {
@@ -96,13 +99,10 @@ abstract class ModrinthCommand extends Command<void> {
 }
 
 Color levelToColor(Level level) {
-  if (level.value > 900) {
-    return Color.RED;
-  } else if (level.value > 800) {
-    return Color.YELLOW;
-  } else if (level.value < 700) {
-    return Color.LIGHT_GRAY;
-  } else {
-    return Color.WHITE;
-  }
+  return switch (level.value) {
+    > 900 => Color.RED,
+    > 800 => Color.YELLOW,
+    < 700 => Color.LIGHT_GRAY,
+    _ => Color.WHITE
+  };
 }

@@ -10,7 +10,7 @@ class VersionCommand extends ModrinthCommand {
 
   @override
   FutureOr<void> execute(ArgResults args) async {
-    var version = await modrinth.getVersion(args.rest[0]);
+    var version = await modrinth.versions.get(args.rest[0]);
     if (version == null) {
       logger.warning("No version with id ${args.rest[0]} was found");
       return;

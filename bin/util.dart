@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:console/console.dart';
+import 'package:http/http.dart';
 import 'package:modrinth_api/modrinth_api.dart';
 
 import 'modrinth.dart';
@@ -17,35 +18,31 @@ void printFormatted(Object data, {bool prependNewline = true}) {
   }
 }
 
-ModrinthFile primaryFileOf(ModrinthVersion version, {bool chooseFirstAsDefault = false}) {
-  final files = version.files;
-  logger.fine("Files: $files");
+extension PrimaryFile on ModrinthVersion {
+  ModrinthFile primaryFile({bool chooseFirstAsDefault = false}) {
+    logger.fine("Files: $files");
 
-  final latestFile = files.firstWhere((v) => v.primary, orElse: () {
-    if (chooseFirstAsDefault) return files[0];
+    final latestFile = files.firstWhere((v) => v.primary, orElse: () {
+      if (chooseFirstAsDefault) return files[0];
 
-    logger.warning("The specified version has no primary file");
-    return Chooser(files,
-            message: "Choose file to download: ",
-            formatter: (file, idx) => "${Color.LIGHT_CYAN}($idx) ${Color.WHITE}${(file as ModrinthFile).filename}")
-        .chooseSync();
-  });
+      logger.warning("The specified version has no primary file");
+      return Chooser(
+        files,
+        message: "Choose file to download: ",
+        formatter: (file, idx) => "${Color.LIGHT_CYAN}($idx) ${Color.WHITE}${(file).filename}",
+      ).chooseSync();
+    });
 
-  return latestFile;
+    return latestFile;
+  }
 }
 
 Future<void> downloadFile(ModrinthFile file) async {
   logger.info("Downloading file ${file.filename}");
 
-  final client = HttpClient();
-  try {
-    await client
-        .getUrl(Uri.parse(file.url))
-        .then((r) => r.close())
-        .then((stream) => stream.pipe(File(file.filename).openWrite()));
-  } finally {
-    client.close();
-  }
+  await client
+      .send(Request("GET", Uri.parse(file.url)))
+      .then((value) => value.stream.pipe(File(file.filename).openWrite()));
 
   logger.info("Success!");
 }
@@ -90,6 +87,6 @@ class _FormattableVersion implements Formattable {
         "Version Name": _version.name,
         "Version Number": "${_version.versionNumber} (${_version.id})",
         "Downloads": _version.downloads.toString(),
-        "Changelog": _version.changelog!.contains("\n") ? "\n" + _version.changelog! : _version.changelog!
+        "Changelog": _version.changelog!.contains("\n") ? "\n${_version.changelog!}" : _version.changelog!
       };
 }

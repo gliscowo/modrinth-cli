@@ -13,7 +13,7 @@ class ProjectVersionsCommand extends ModrinthCommand {
 
   @override
   void execute(ArgResults args) async {
-    final versions = await modrinth.getProjectVersions(args.rest[0]);
+    final versions = await modrinth.projects.getVersions(args.rest[0]).then((value) => value?.toList());
     if (versions == null) {
       logger.warning("No project with id ${args.rest[0]} was found");
       return;

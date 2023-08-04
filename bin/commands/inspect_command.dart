@@ -25,7 +25,7 @@ class InspectProjectCommand extends ModrinthCommand {
 
   @override
   FutureOr<void> execute(ArgResults args) async {
-    final project = await modrinth.getProject(args.rest[0]);
+    final project = await modrinth.projects.get(args.rest[0]);
     if (project == null) {
       logger.warning("No project with id ${args.rest[0]} was found");
       return;
@@ -45,7 +45,7 @@ class InspectUserCommand extends ModrinthCommand {
 
   @override
   FutureOr<void> execute(ArgResults args) async {
-    final user = await modrinth.getUser(args.rest[0]);
+    final user = await modrinth.users.get(args.rest[0]);
     if (user == null) {
       logger.warning("No user with id ${args.rest[0]} was found");
       return;
@@ -60,7 +60,7 @@ class InspectVersionCommand extends ModrinthCommand {
 
   @override
   FutureOr<void> execute(ArgResults args) async {
-    final version = await modrinth.getVersion(args.rest[0]);
+    final version = await modrinth.versions.get(args.rest[0]);
     if (version == null) {
       logger.warning("No version with id ${args.rest[0]} was found");
       return;

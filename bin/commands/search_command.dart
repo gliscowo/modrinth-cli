@@ -15,7 +15,7 @@ class SearchCommand extends ModrinthCommand {
     var searchTerm = args.rest.join(" ");
     logger.info("searching '$searchTerm'");
 
-    var response = await modrinth.search(searchTerm);
+    var response = await modrinth.search(query: searchTerm);
     logger.info("${response.totalHits} results found");
 
     for (var hit in response.hits) {
